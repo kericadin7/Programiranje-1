@@ -1,2 +1,3 @@
 # Programiranje-1
-Zadaci iz PR1
+
+Ispitni zadaci PR1
