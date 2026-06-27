@@ -1,71 +1,74 @@
 #include <iostream>
-#include <iomanip>
-#include <cstring>
 #include <ctime>
+#include <iomanip>
 
 using namespace std;
 
-char* getTextCopy(const char* const src) {
-	if (src == nullptr) {
-		return nullptr;
-	}
-
-	const size_t size = strlen(src) + 1;
-	char* const copy = new char[size];
-	strcpy_s(copy, size, src);
-
-	return copy;
+char* unesiText(char* tekst)
+{
+	char temp[200];
+	cin.getline(temp, 200);
+	int duzinaTexta = strlen(temp) + 1;
+	char* noviText = new char[duzinaTexta];
+	strcpy_s(noviText, duzinaTexta, temp);
+	return noviText;
 }
 
-bool daLiJeKategorijaValidna(const char* const zanrSerije) {
-	return strcmp(zanrSerije, "Tjestenina") == 0
-		|| strcmp(zanrSerije, "Tradicionalna") == 0
-		|| strcmp(zanrSerije, "Fast Food") == 0;
+bool isCategoryRight(const char* noviText)
+{
+	if ((strcmp("Tjestenina", noviText) == 0) || (strcmp("Tradicionalno", noviText) == 0) || (strcmp("Fast Food", noviText) == 0))
+	{
+		return true;
+	}
+	return false;
 }
 
 struct Jelo {
 	char* imeJela = nullptr;
-	char* kategorijaJela = nullptr;
+	char* kategorijaJela = nullptr; // Kategorija moze biti samo Tjestenina, Tradicionalno, Fast Food
 	char imeKuhara[40] = "";
 	int brojVarijacija = 0;
 	int brojKriticara = 0;
 	int** ocjene = nullptr;
 
-	void unos() {
-		char temp[200];
+	void unos()
+	{
+		char temp[20];
 
-		cout << "Unesite ime Jela:\n";
-		cin.getline(temp, 200);
-		imeJela = getTextCopy(temp);
+		cout << "Unesi ime jela: ";
+		imeJela = unesiText(imeJela);
 
-		cout << "Unesite kategoriju Jela:\n";
-		bool repeatLoop;
-		do {
-			repeatLoop = false;
-			cin.getline(temp, 200);
-
-			if (repeatLoop = !daLiJeKategorijaValidna(temp)) {
-				cout << "Pogresna kategorija! Kategorija moze biti samo Tjestenina, Tradicionalna ili Fast Food\n";
+		cout << "Unesi kategoriju jela: ";
+		do
+		{
+			cin.getline(temp, 20);
+			if (!isCategoryRight(temp))
+			{
+				cout << "Pogresna kategorija! Kategorija moze biti samo Tjestenina, Tradicionalno, Fast Food!" << endl;
 			}
-		} while (repeatLoop);
-		kategorijaJela = getTextCopy(temp);
+		} while (!isCategoryRight(temp));
 
-		cout << "Unesite ime kuhara:\n";
-		cin.getline(imeKuhara, 40);
+		int duzinaKategorije = strlen(temp) + 1;
+		kategorijaJela = new char[duzinaKategorije];
+		strcpy_s(kategorijaJela, duzinaKategorije, temp);
 
-		cout << "Unesite broj varijacija jela:\n";
+		cout << "Unesi ime kuhara: ";
+		cin.getline(imeKuhara, size(imeKuhara));
+
+		cout << "Unesi broj varijacija jela: ";
 		cin >> brojVarijacija;
+		cin.ignore();
 
-		cout << "Unesite broj recenzenata za jelo:\n";
+		cout << "Unesi broj kriticara: ";
 		cin >> brojKriticara;
 		cin.ignore();
 
 		ocjene = new int* [brojVarijacija];
-		for (int i = 0; i < brojVarijacija; ++i)
+
+		for (int i = 0; i < brojVarijacija; i++)
 		{
 			*(ocjene + i) = new int[brojKriticara];
-
-			for (int j = 0; j < brojKriticara; ++j)
+			for (int j = 0; j < brojKriticara; j++)
 			{
 				*(*(ocjene + i) + j) = rand() % 10 + 1;
 			}
@@ -74,147 +77,127 @@ struct Jelo {
 
 	void ispis()
 	{
-		cout << "==============================================================================\n";
-		cout << "Ime jela: " << imeJela << '\n';
-		cout << "Kategorija jela: " << kategorijaJela << '\n';
-		cout << "Ime kuhara: " << imeKuhara << '\n';
-		cout << "Broj varijacija: " << brojVarijacija << '\n';
-		cout << "Broj kriticara: " << brojKriticara << '\n';
-		cout << "-----------------------------------------------------\n";
-		for (int i = 0; i < brojVarijacija; ++i)
+		cout << "Ime jela: " << imeJela << endl;
+		cout << "Kategorija jela: " << kategorijaJela << endl;
+		cout << "Ime kuhara: " << imeKuhara << endl;
+		cout << "Broj varijacija jela: " << brojVarijacija << endl;
+		cout << "Broj kriticara: " << brojKriticara << endl;
+		cout << "======OCJENE======" << endl;
+
+		for (int i = 0; i < brojVarijacija; i++)
 		{
-			cout << "Varijacija " << i + 1 << " ->";
-			for (int j = 0; j < brojKriticara; ++j)
+			for (int j = 0; j < brojKriticara; j++)
 			{
-				cout << " Kriticar " << j + 1 << " ocjena: " << setw(3) << *(*(ocjene + i) + j) << " |";
+				cout << *(*(ocjene + i) + j) << " ";
 			}
-			cout << '\n';
+			cout << endl;
 		}
-		cout << "-----------------------------------------------------\n";
-		cout << "==============================================================================\n";
+		cout << "==================" << endl;
+		cout << endl;
 	}
 
-	void dealokacije()
+	void dealokacija()
 	{
 		delete[] imeJela;
 		imeJela = nullptr;
-
 		delete[] kategorijaJela;
 		kategorijaJela = nullptr;
 
-		for (int i = 0; i < brojVarijacija; ++i)
+		for (int i = 0; i < brojVarijacija; i++)
 		{
 			delete[] * (ocjene + i);
 		}
+
 		delete[] ocjene;
 		ocjene = nullptr;
 	}
 };
 
-float getAverageForVarijacija(Jelo* const jelo, int varijacijaIndex) {
-	float averageForVarijacija{ 0.0f };
+float* getAverageByCategory(Jelo* niz, int velicina)
+{
+	float* prosjek = new float[3] {0};
+	int brojac[3]{ 0 };
 
-	for (int k = 0; k < jelo->brojKriticara; ++k)
+	for (int i = 0; i < velicina; i++)
 	{
-		averageForVarijacija += *(*(jelo->ocjene + varijacijaIndex) + k);
+		for (int j = 0; j < (niz + i)->brojVarijacija; j++)
+		{
+			for (int k	 = 0; k < (niz + i)->brojKriticara; k++)
+			{
+				if ((strcmp((niz + i)->kategorijaJela, "Tjestenina") == 0))
+				{
+					*prosjek += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 0));
+				}
+				else if ((strcmp((niz + i)->kategorijaJela, "Tradicionalno") == 0))
+				{
+					*(prosjek + 1) += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 1));
+				}
+				else if ((strcmp((niz + i)->kategorijaJela, "Fast Food") == 0))
+				{
+					*(prosjek + 2) += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 2));
+				}
+			}
+		}
 	}
 
-	return averageForVarijacija / jelo->brojKriticara;
+	for (int i = 0; i < 3; i++)
+	{
+		if (*(brojac + i) > 0)
+		{
+			*(prosjek + i) /= *(brojac + i);
+		}
+		else
+		{
+			*(prosjek + i) = 0;
+		}
+	}
+
+	return prosjek;
 }
 
-float getAverageForJelo(Jelo* const jelo) {
-	float averageForJelo{ 0.0f };
+int main()
+{
+	srand(time(0));
 
-	for (int j = 0; j < jelo->brojVarijacija; ++j)
+	int brojJela = 0;
+	do
 	{
-		averageForJelo += getAverageForVarijacija(jelo, j);
-	}
-
-	return averageForJelo / jelo->brojVarijacija;
-}
-
-float* getAverageByCategory(Jelo* niz, int velNiza) {
-	float* averagesByCategory = new float[3];
-	*(averagesByCategory + 0) = 0.0f;
-	*(averagesByCategory + 1) = 0.0f;
-	*(averagesByCategory + 2) = 0.0f;
-
-	int* counters = new int[3];
-	*(counters + 0) = 0;
-	*(counters + 1) = 0;
-	*(counters + 2) = 0;
-
-	for (int i = 0; i < velNiza; ++i)
-	{
-		const char* const zanrJela = (niz + i)->kategorijaJela;
-		float averageForJelo = getAverageForJelo(niz + i);
-
-		if (strcmp(zanrJela, "Tjestenina") == 0)
-		{
-			*(averagesByCategory + 0) += averageForJelo;
-			*(counters + 0) += 1;
-		}
-		else if (strcmp(zanrJela, "Tradicionalna") == 0)
-		{
-			*(averagesByCategory + 1) += averageForJelo;
-			*(counters + 1) += 1;
-		}
-		else if (strcmp(zanrJela, "Fast Food") == 0)
-		{
-			*(averagesByCategory + 2) += averageForJelo;
-			*(counters + 2) += 1;
-		}
-	}
-
-	for (int i = 0; i < 3; ++i)
-	{
-		if (*(counters + i) != 0)
-		{
-			*(averagesByCategory + i) /= *(counters + i);
-		}
-	}
-
-	delete[] counters;
-
-	return averagesByCategory;
-}
-
-int main() {
-	srand(time(nullptr));
-
-	int brojJela;
-	cout << "Unesite broj jela: ";
-	cin >> brojJela;
+		cout << "Unesite broj jela: ";
+		cin >> brojJela;
+	} while (brojJela < 1);
 	cin.ignore();
 
-	Jelo* jela = new Jelo[brojJela];
+	Jelo* izborJela = new Jelo[brojJela];
 
-	for (int i = 0; i < brojJela; ++i) {
-		(jela + i)->unos();
+	for (int i = 0; i < brojJela; i++)
+	{
+		(izborJela + i)->unos();
 	}
 
-	for (int i = 0; i < brojJela; ++i) {
-		(jela + i)->ispis();
+	for (int i = 0; i < brojJela; i++)
+	{
+		(izborJela + i)->ispis();
 	}
 
-	float* averagesByCategory = getAverageByCategory(jela, brojJela);
+	float* prosjek = getAverageByCategory(izborJela, brojJela);
+	cout << "=== Prosjeci po kategoriji === " << endl;
+	cout << "Prosjeci za Tjesteninu: " << *(prosjek) << endl;
+	cout << "Prosjeci za Tradicionalno: " << *(prosjek + 1) << endl;
+	cout << "Prosjeci za Fast Food: " << *(prosjek + 2) << endl;
 
-	cout << "============================================================\n";
-	cout << "Prosjecne ocjene po kategorijama jela:\n";
-	cout << "Tjestenina: " << *(averagesByCategory + 0) << '\n';
-	cout << "Tradicionalna: " << *(averagesByCategory + 1) << '\n';
-	cout << "Fast Food: " << *(averagesByCategory + 2) << '\n';
-	cout << "============================================================\n";
-
-	delete[] averagesByCategory;
-	averagesByCategory = nullptr;
-
-	for (int i = 0; i < brojJela; ++i) {
-		(jela + i)->dealokacije();
+	for (int i = 0; i < brojJela; i++)
+	{
+		(izborJela + i)->dealokacija();
 	}
 
-	delete[] jela;
-	jela = nullptr;
+	delete[] prosjek;
+	prosjek = nullptr;
+
+	delete[] izborJela;
+	izborJela = nullptr;
 
 	return 0;
 }
