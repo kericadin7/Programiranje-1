@@ -1,49 +1,22 @@
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <iomanip>
+
 using namespace std;
 
-char* createText(int size)
+char* unesiText(char* tekst)
 {
-	return new char[size];
+	char temp[200];
+	cin.getline(temp, 200);
+	int duzinaTexta = strlen(temp) + 1;
+	char* noviText = new char[duzinaTexta];
+	strcpy_s(noviText, duzinaTexta, temp);
+	return noviText;
 }
 
-char* createTextFrom(const char* source)
+bool isGenreRight(const char* noviText)
 {
-	if (source == nullptr)
-		return nullptr;
-
-	int size = strlen(source) + 1;
-	char* text = createText(size);
-	strcpy_s(text, size, source);
-
-	return text;
-}
-
-int** createMatrix(int rows, int columns)
-{
-	int** m = new int* [rows];
-	for (int i = 0; i < rows; i++)
-	{
-		m[i] = new int[columns];
-	}
-	return m;
-}
-
-void deleteMatrix(int** m, int rows)
-{
-	for (int i = 0; i < rows; i++)
-	{
-		delete[] m[i];
-		m[i] = nullptr;
-	}
-	delete[] m;
-	m = nullptr;
-}
-
-bool isGenreRight(const char* text)
-{
-	if ((strcmp("Komedija", text) == 0) || (strcmp("Tragedija", text) == 0) || (strcmp("Tragikomedija", text) == 0))
+	if ((strcmp(noviText, "Komedija") == 0) || (strcmp(noviText, "Tragedija") == 0) || (strcmp(noviText, "Tragikomedija") == 0))
 	{
 		return true;
 	}
@@ -56,79 +29,74 @@ struct Predstava {
 	char imeRezisera[40] = "";
 	int brojVarijacija = 0;
 	int brojKriticara = 0;
-	int** ocjene = nullptr; // matrica brojVarijacija* brojKriticara
+	int** ocjene = nullptr; // matrica brojVarijacija * brojKriticara
 
-	void unos()
+	void unos() 
 	{
-		char temp[250];
+		char temp[20];
 
-		cin.ignore();
+		cout << "Unesi ime predstave: ";
+		imePredstave = unesiText(imePredstave);
 
-		cout << "Unesite ime predstave: " << endl;
-		cin.getline(temp, size(temp));
-
-		imePredstave = createTextFrom(temp);
-
-		cout << "Unesite kategoriju predstave: " << endl;
+		cout << "Unesi kategoriju predstave: ";
 		do
 		{
-			cin.getline(temp, size(temp));
+			cin.getline(temp, 20);
 			if (!isGenreRight(temp))
 			{
-				cout << "Pogresna kategorija! Kategorija moze biti samo Komedija, Tragedija, Tragikomedija!" << endl;
+				cout << "Pogresna kategorija predstave! Kategorija moze biti samo Komedija, Tragedija, Tragikomedija" << endl;
 			}
 		} while (!isGenreRight(temp));
-		kategorijaPredstave = createTextFrom(temp);
 
-		cout << "Unesite ime rezisera: " << endl;
+		int duzinaKategorije = strlen(temp) + 1;
+		kategorijaPredstave = new char[duzinaKategorije];
+		strcpy_s(kategorijaPredstave, duzinaKategorije, temp);
+
+		cout << "Unesi ime rezisera: ";
 		cin.getline(imeRezisera, size(imeRezisera));
 
-		do
-		{
-			cout << "Unesite broj varijacija predstave: " << endl;
-			cin >> brojVarijacija;
-		} while (brojVarijacija < 1);
+		cout << "Unesi broj varijacija predstave: ";
+		cin >> brojVarijacija;
+		cin.ignore();
 
-		do
-		{
-			cout << "Unesite broj kriticara predstave: " << endl;
-			cin >> brojKriticara;
-		} while (brojKriticara < 1);
+		cout << "Unesi broj kriticara: ";
+		cin >> brojKriticara;
+		cin.ignore();
 
-		ocjene = createMatrix(brojVarijacija, brojKriticara);
+		ocjene = new int* [brojVarijacija];
 
 		for (int i = 0; i < brojVarijacija; i++)
 		{
+			*(ocjene + i) = new int [brojKriticara];
 			for (int j = 0; j < brojKriticara; j++)
 			{
-				*(*(ocjene + i) + j) = rand() % 10 + 1; // obavezno pointere
+				*(*(ocjene + i) + j) = rand() % 10 + 1;
 			}
 		}
 	}
 
 	void ispis()
 	{
-		cout << "=====================================" << endl;
 		cout << "Ime predstave: " << imePredstave << endl;
 		cout << "Kategorija predstave: " << kategorijaPredstave << endl;
-		cout << "Ime rezisera predstave: " << imeRezisera << endl;
+		cout << "Ime rezisera: " << imeRezisera << endl;
 		cout << "Broj varijacija predstave: " << brojVarijacija << endl;
-		cout << "Broj kriticara predstave: " << brojKriticara << endl;
-		cout << "Ocjene: " << endl;
-		cout << "-------------------------------------" << endl;
+		cout << "Broj kriticara: " << brojKriticara << endl;
+		cout << "======OCJENE======" << endl;
+
 		for (int i = 0; i < brojVarijacija; i++)
 		{
-			cout << "Predstava broj: " << i + 1 << " -> ";
 			for (int j = 0; j < brojKriticara; j++)
 			{
-				cout << "Kriticar " << j + 1 << " ocjena:";
-				cout << setw(3) << *(*(ocjene + i) + j) << " | "; // obavezno pointere
+				cout << *(*(ocjene + i) + j) << " ";
 			}
 			cout << endl;
 		}
-		cout << "-------------------------------------" << endl;
-		cout << "=====================================" << endl;
+
+		cout << "==================" << endl;
+		cout << endl;
 	}
+
 
 	void dealokacija()
 	{
@@ -138,61 +106,60 @@ struct Predstava {
 		delete[] kategorijaPredstave;
 		kategorijaPredstave = nullptr;
 
-		deleteMatrix(ocjene, brojVarijacija);
+		for (int i = 0; i < brojVarijacija; i++)
+		{
+			delete[] * (ocjene + i);
+		}
+
+		delete[] ocjene;
+		ocjene = nullptr;
 	}
 
 };
 
 float* getAverageByCategory(Predstava* niz, int velNiza)
 {
-	float* prosjeciZanrova = new float[3] {0.0f};
+	float* prosjek = new float[3] {0};
+	int brojac[3]{ 0 };
 
-	int brojPredstava[3] = { 0 }; // ovdje spremam broj predstava po kategoriji
-
-	for (int i = 0; i < velNiza; i++) // velNiza je ukupan broj predstava koje imam
+	for (int i = 0; i < velNiza; i++)
 	{
-		float ukupniProsjek = 0.0f; // ukupan prosjek za svaku predstavu pojedinacno
-
-		for (int j = 0; j < niz[i].brojVarijacija; j++) // trebam za svaku pojedinacnu predstavu da vidim ocjene, zato koristim niz[i]
+		for (int j = 0; j < (niz + i)->brojVarijacija; j++)
 		{
-			float suma = 0.0f; // spremam sumu ocjena za jednu predstavu
-			for (int k = 0; k < niz[i].brojKriticara; k++)
+			for (int k = 0; k < (niz + i)->brojKriticara; k++)
 			{
-				suma += niz[i].ocjene[j][k]; // sve ocjene za jednu predstavu od raznih kriticara spremile su se u ovu sumu
+				if ((strcmp((niz + i)->kategorijaPredstave, "Komedija") == 0))
+				{
+					*(prosjek) += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 0));
+				}
+				else if ((strcmp((niz + i)->kategorijaPredstave, "Tragedija") == 0))
+				{
+					*(prosjek + 1) += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 1));
+				}
+				else if ((strcmp((niz + i)->kategorijaPredstave, "Tragikomedija") == 0))
+				{
+					*(prosjek + 2) += *(*((niz + i)->ocjene + j) + k);
+					++(*(brojac + 2));
+				}
 			}
-			ukupniProsjek += suma / niz[i].brojKriticara; // ukupan prosjek za pojedinacnu trenutnu predstavu je suma ocjena koju su dali svi kriticari kroz broj kriticara
-		}
-
-		ukupniProsjek /= niz[i].brojVarijacija; // trebamo dijeliti sa brojem redova da dobijemo konacni prosjek koji ce se dodavati na kraju
-
-		if (strcmp(niz[i].kategorijaPredstave, "Komedija") == 0)
-		{
-			prosjeciZanrova[0] += ukupniProsjek;
-			brojPredstava[0]++;
-		}
-
-		else if (strcmp(niz[i].kategorijaPredstave, "Tragedija") == 0)
-		{
-			prosjeciZanrova[1] += ukupniProsjek;
-			brojPredstava[1]++;
-		}
-
-		else if (strcmp(niz[i].kategorijaPredstave, "Tragikomedija") == 0)
-		{
-			prosjeciZanrova[2] += ukupniProsjek;
-			brojPredstava[2]++;
 		}
 	}
 
 	for (int i = 0; i < 3; i++)
 	{
-		if (brojPredstava[i] > 0)
+		if (*(brojac+i) > 0)
 		{
-			prosjeciZanrova[i] /= brojPredstava[i];
+			*(prosjek + i) /= *(brojac + i);
+		}
+		else
+		{
+			*(prosjek + i) = 0;
 		}
 	}
-	return prosjeciZanrova;
 
+	return prosjek;
 }
 
 int main()
@@ -200,42 +167,40 @@ int main()
 	srand(time(0));
 
 	int brojPredstava = 0;
-
 	do
 	{
-		cout << "Unesite broj predstava: " << endl;
+		cout << "Unesite broj predstava: ";
 		cin >> brojPredstava;
 	} while (brojPredstava < 1);
+	cin.ignore();
 
-	Predstava* predstave = new Predstava[brojPredstava];
-
-	for (int i = 0; i < brojPredstava; i++)
-	{
-		(predstave + i)->unos();
-	}
+	Predstava* izborPredstave = new Predstava[brojPredstava];
 
 	for (int i = 0; i < brojPredstava; i++)
 	{
-		(predstave + i)->ispis();
+		(izborPredstave + i)->unos();
+	}
+	for (int i = 0; i < brojPredstava; i++)
+	{
+		(izborPredstave + i)->ispis();
 	}
 
-	float* prosjeciZanrova = getAverageByCategory(predstave, brojPredstava);
-	cout << "Prosjecne ocjene po kategoriji predstave su: " << endl;
-	cout << "Komedija: " << *prosjeciZanrova << endl;
-	cout << "Tragedija: " << *(prosjeciZanrova + 1) << endl;
-	cout << "Tragikomedija: " << *(prosjeciZanrova + 2) << endl;
-
-	delete[] prosjeciZanrova;
-	prosjeciZanrova = nullptr;
+	float* prosjek = getAverageByCategory(izborPredstave, brojPredstava);
+	cout << "=== Prosjeci po kategoriji === " << endl;
+	cout << "Prosjeci za Komediju: " << *(prosjek) << endl;
+	cout << "Prosjeci za Tragediju: " << *(prosjek + 1) << endl;
+	cout << "Prosjeci za Tragikomediju: " << *(prosjek + 2) << endl;
 
 	for (int i = 0; i < brojPredstava; i++)
 	{
-		(predstave + i)->dealokacija();
+		(izborPredstave + i)->dealokacija();
 	}
 
-	delete[] predstave;
-	predstave = nullptr;
+	delete[] izborPredstave;
+	izborPredstave = nullptr;
 
+	delete prosjek;
+	prosjek = nullptr;
 
 	return 0;
 }
