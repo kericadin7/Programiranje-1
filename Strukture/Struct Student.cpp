@@ -40,11 +40,9 @@ struct Student {
 
 		cout << "Unesi broj semestara: ";
 		cin >> brojSemestra;
-		//cin.ignore();
 
 		cout << "Unesi broj uplata: ";
 		cin >> brojUplata;
-		//cin.ignore();
 
 		uplate = new int* [brojSemestra];
 		for (int i = 0; i < brojSemestra; i++)
